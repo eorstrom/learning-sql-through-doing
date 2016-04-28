@@ -1,6 +1,6 @@
 # learning-sql-through-doing
 
-1. Provide a query showing Customers (just their full names, customer ID and country) who are not in the US.
+**Provide a query showing Customers (just their full names, customer ID and country) who are not in the US.**
 
   SELECT FirstName, LastName, CustomerId, Country 
   FROM Customer
@@ -119,7 +119,7 @@ Total Sales: 469.58
   FROM Invoice
   GROUP BY BillingCountry;
 
-14. Provide a query that shows the total number of tracks in each playlist. The Playlist name should be include on the resulant table.
+14. Provide a query that shows the total number of tracks in each playlist. The Playlist name should be included on the resulant table.
 
 
 
