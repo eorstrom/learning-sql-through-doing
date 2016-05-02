@@ -61,14 +61,14 @@
 #####**7. Provide a query that shows the Invoice Total, Customer name, Country and Sale Agent name for all invoices and customers.**#####
 
 ```SQL
-      SELECT
-      i.Total,
-      i.BillingCountry,
-      c.FirstName|| " " ||c.LastName AS CustomerName,
-      e.FirstName|| " " ||e.LastName AS SalesAgentName
-      FROM Invoice i
-      INNER JOIN Customer c ON c.CustomerId = i.CustomerId
-      INNER JOIN Employee e ON e.EmployeeId = c.SupportRepId;
+    SELECT
+    i.Total,
+    i.BillingCountry,
+    c.FirstName|| " " ||c.LastName AS CustomerName,
+    e.FirstName|| " " ||e.LastName AS SalesAgentName
+    FROM Invoice i
+    INNER JOIN Customer c ON c.CustomerId = i.CustomerId
+    INNER JOIN Employee e ON e.EmployeeId = c.SupportRepId;
 ```
 
 #####**8. How many Invoices were there in 2009 and 2011? What are the respective total sales for each of those years?(include both the answers and the queries used to find the answers)**#####
@@ -106,21 +106,21 @@
 #####**10. Looking at the InvoiceLine table, provide a query that COUNTs the number of line items for each Invoice. HINT: GROUP BY**#####
 
 ```SQL
-      SELECT InvoiceId, COUNT(InvoiceLineId) 
-      FROM InvoiceLine
-      GROUP BY InvoiceID;
+    SELECT InvoiceId, COUNT(InvoiceLineId) 
+    FROM InvoiceLine
+    GROUP BY InvoiceID;
 ```
 
 #####**11. Provide a query that includes the track name with each invoice line item.**#####
 
 ```SQL
-      SELECT 
-      il.InvoiceId,
-      t.Name
-      FROM InvoiceLine il
-      INNER JOIN Track t
-      ON il.TrackId=t.TrackID
-      ORDER BY il.InvoiceId ASC;
+    SELECT 
+    il.InvoiceId,
+    t.Name
+    FROM InvoiceLine il
+    INNER JOIN Track t
+    ON il.TrackId=t.TrackID
+    ORDER BY il.InvoiceId ASC;
 ```
 
 #####**12. Provide a query that includes the purchased track name AND artist name with each invoice line item.**#####
@@ -177,41 +177,139 @@
 #####**16. Provide a query that shows all Invoices but includes the # of invoice line items.**#####
 
 ```SQL
-
+    SELECT
+    COUNT(il.InvoiceLineId),
+    i.*
+    FROM InvoiceLine il
+    INNER JOIN Invoice i ON i.InvoiceId = il.InvoiceId
+    GROUP BY il.InvoiceId;
 ```
 
 #####**17. Provide a query that shows total sales made by each sales agent.**#####
 
 ```SQL
-    
+    SELECT
+    SUM(i.Total),
+    e.FirstName||" "||e.LastName AS SalesAgentName
+    FROM Employee e
+    INNER JOIN Customer c ON c.SupportRepId = e.EmployeeId
+    INNER JOIN Invoice i ON i.CustomerId = c.CustomerId
+    GROUP BY e.EmployeeId;
 ```
 
 #####**18. Which sales agent made the most in sales in 2009? HINT: MAX**#####
 
-
+```SQL
+    SELECT
+    SUM(i.Total) AS TotalSales,
+    e.FirstName||" "||e.LastName AS SalesAgentName,
+    i.InvoiceDate
+    FROM Employee e
+    INNER JOIN Customer c ON c.SupportRepId = e.EmployeeId
+    INNER JOIN Invoice i ON i.CustomerId = c.CustomerId
+    WHERE i.InvoiceDate BETWEEN date('2009-01-01') AND date('2009-12-31')
+    GROUP BY e.EmployeeId
+    ORDER BY TotalSales DESC 
+    LIMIT 1;
+```
 
 #####**19. Which sales agent made the most in sales over all?**#####
 
-
+```SQL
+    SELECT
+    SUM(i.Total) AS TotalSales,
+    e.FirstName||" "||e.LastName AS SalesAgentName
+    FROM Employee e
+    INNER JOIN Customer c ON c.SupportRepId = e.EmployeeId
+    INNER JOIN Invoice i ON i.CustomerId = c.CustomerId
+    GROUP BY e.EmployeeId
+    ORDER BY TotalSales DESC 
+    LIMIT 1;
+```
 
 #####**20. Provide a query that shows the # of customers assigned to each sales agent.**#####
-
-
+```SQL
+    SELECT
+    COUNT(c.CustomerId),
+    c.SupportRepId,
+    e.FirstName||" "||e.LastName AS SalesAgentName
+    FROM Customer c
+    INNER JOIN Employee e ON e.EmployeeId = c.SupportRepId
+    GROUP BY SupportRepId;
+```
 
 #####**21. Provide a query that shows the total sales per country. Which country's customers spent the most?**#####
 
-
+Answer: USA
+```SQL
+    SELECT
+    BillingCountry,
+    SUM(Total) AS TotalSales
+    FROM Invoice
+    GROUP BY BillingCountry
+    ORDER BY TotalSales DESC 
+    LIMIT 1;
+```
 
 #####**22. Provide a query that shows the most purchased track of 2013.**#####
 
-
+```SQL
+    SELECT
+    t.Name,
+    COUNT(t.Name) AS Total
+    FROM InvoiceLine il
+    INNER JOIN Track t ON t.TrackId = il.TrackId
+    INNER JOIN Invoice i ON i.InvoiceId = il.InvoiceId
+    WHERE i.InvoiceDate BETWEEN date('2013-01-01') AND date('2013-12-31')
+    GROUP BY t.Name
+    ORDER BY Total DESC 
+    LIMIT 1;
+```
 
 #####**23. Provide a query that shows the top 5 most purchased tracks over all.**#####
 
-
+```SQL
+    SELECT
+    t.Name,
+    COUNT(t.Name) AS Total
+    FROM InvoiceLine il
+    INNER JOIN Track t ON t.TrackId = il.TrackId
+    INNER JOIN Invoice i ON i.InvoiceId = il.InvoiceId
+    GROUP BY t.Name
+    ORDER BY Total DESC 
+    LIMIT 5;
+```
 
 #####**24. Provide a query that shows the top 3 best selling artists.**#####
 
-
+```SQL
+    SELECT
+    ar.Name,
+    COUNT(t.Name) AS Total
+    FROM InvoiceLine il
+    INNER JOIN Track t ON t.TrackId = il.TrackId
+    INNER JOIN Invoice i ON i.InvoiceId = il.InvoiceId
+    INNER JOIN Album a ON a.AlbumId = t.AlbumId
+    INNER JOIN Artist ar ON ar.ArtistId = a.AlbumId
+    GROUP BY t.Name
+    ORDER BY Total DESC 
+    LIMIT 3;
+```
 
 #####**25. Provide a query that shows the most purchased Media Type.**#####
+
+MPEG audio file - 1976
+```SQL
+    SELECT
+    mt.Name AS MediaTypeName,
+    COUNT(mt.Name) AS Total
+    FROM InvoiceLine il
+    INNER JOIN Track t ON t.TrackId = il.TrackId
+    INNER JOIN Invoice i ON i.InvoiceId = il.InvoiceId
+    INNER JOIN Album a ON a.AlbumId = t.AlbumId
+    INNER JOIN Artist ar ON ar.ArtistId = a.AlbumId
+    INNER JOIN MediaType mt ON mt.MediaTypeId = t.MediaTypeId
+    GROUP BY mt.Name
+    ORDER BY Total DESC 
+    LIMIT 1;
+```
